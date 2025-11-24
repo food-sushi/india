@@ -44,7 +44,7 @@ app.use((req, res, next) => {
 
   // Allow static files
   if (
-     req.path.startsWith("/") ||
+   
     req.path.startsWith("/css") ||
     req.path.startsWith("/js") ||
     req.path.startsWith("/images")
@@ -108,5 +108,6 @@ app.get("*", (req, res) => {
 ===================================================== */
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Server running on port " + PORT));
+
 
 
