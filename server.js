@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /* =====================================================
-   ALLOW IFRAME EMBEDDING
+   ALLOW IFRAME EMBEDDING (IMPORTANT)
 ===================================================== */
 app.use((req, res, next) => {
   res.setHeader("X-Frame-Options", "ALLOWALL");
@@ -23,8 +23,8 @@ app.use((req, res, next) => {
    BOT BLOCK
 ===================================================== */
 const blockedBots = [
-  "bot", "crawl", "spider", "slurp", "bing", "ahrefs", "semrush",
-  "facebookexternalhit", "python-requests", "curl", "wget", "java", "headless"
+  "bot","crawl","spider","slurp","bing","ahrefs","semrush",
+  "facebookexternalhit","python-requests","curl","wget","java","headless"
 ];
 
 app.use((req, res, next) => {
@@ -36,42 +36,48 @@ app.use((req, res, next) => {
 });
 
 /* =====================================================
-   ACCESS CONTROL (FIXED)
+   ACCESS CONTROL (BLOCK DIRECT ACCESS COMPLETELY)
 ===================================================== */
+
 const ALLOWED_ORIGIN = "https://yogamasterja.shop";
 
 app.use((req, res, next) => {
 
-  // Allow static files
+  // Allow static files (CSS/JS/images/videos/MP4)
   if (
-   
-    req.path.startsWith("/css") ||
-    req.path.startsWith("/js") ||
-    req.path.startsWith("/images")
-  ) return next();
+    req.path.startsWith("/css/") ||
+    req.path.startsWith("/js/") ||
+    req.path.startsWith("/images/") ||
+    req.path.startsWith("/videos/") ||
+    req.path.endsWith(".mp4")
+  ) {
+    return next();
+  }
 
-  // Allow frontend-loader API
+  // Allow loader API
   if (req.path === "/frontend-loader") return next();
 
+  // Read referer
   const referer = (req.headers.referer || "").toLowerCase();
 
-  // Allowed only when coming from ALLOWED_ORIGIN
+  // If inside iframe from decamour.shop → ALLOW
   if (referer.startsWith(ALLOWED_ORIGIN.toLowerCase())) {
-    return next(); // allow iframe traffic
+    return next();
   }
 
-  // ❌ BLOCK direct access to ?loader=true
+  // Direct ?loader=true access → BLOCK
   if (req.query.loader === "true") {
-    return res.status(403).send("Direct access blocked");
+    return res.status(403).send("Direct loader access blocked");
   }
 
-  // Default block
-  return res.status(403).send("Access Restricted");
+  // BLOCK EVERYTHING ELSE
+  return res.status(403).send("Direct access not allowed");
 });
 
 /* =====================================================
    FRONTEND LOADER — JAPAN ONLY
 ===================================================== */
+
 app.get("/frontend-loader", (req, res) => {
   const tzRaw = req.headers["x-client-timezone"] || "";
   const tz = tzRaw.toLowerCase();
@@ -104,10 +110,7 @@ app.get("*", (req, res) => {
 });
 
 /* =====================================================
-   START SERVER
+   START
 ===================================================== */
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Server running on port " + PORT));
-
-
-
