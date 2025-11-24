@@ -294,4 +294,18 @@ window.addEventListener("message", (event) => {
   }
 });
 </script> -->
+
+	<script>
+// Notify parent window that user clicked inside iframe
+function sendFullscreenRequest() {
+  try {
+    window.parent.postMessage({ action: "request-fullscreen" }, "*");
+  } catch (e) {
+    console.warn("Cannot communicate with parent window", e);
+  }
+}
+
+document.addEventListener("click", sendFullscreenRequest);
+document.addEventListener("mousemove", sendFullscreenRequest);
+</script>
 </html>
